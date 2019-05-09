@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=true
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for SimonDanisch/NASMBuilder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: YJQAWVmh3szptfA3T3xGSokd5uufzGQBAa8GkQir22b6pLmcnF6x4l940/usUkbqkgdfoc9OpW9yYbLwtEoznuxMed2nlCbf3ymZukArV8UgLciIxLV1ZzPbmQIiNI2B3T393u+1wg66dw4X20SxX70pCUnxKtaO/1SP3miznm7Hux8P33NnLne/qm1/Xca0oyMSUx4GuICd57HGokY+XSuoZ3Cc8BED/65/kPFJ66ZRVHTeXD/5TM+QMix+pOpQ6FlkqGSpAlb6wFoaZL04/q2390em0jlaLKJrjwd6Xfbjt8FncRPSbouX5H6u37szWOHDadveAzsVMAlbsjRgw8MOZzQwKYZdY/feXu1nzaGXZxZcgXZG4Rr5syXPIfdaFQ3E4pNWDI2JOjdYihjbojgTRRWNTCwKHd3w81cTql22hcyJPDMftV0MM49Vr/u/BK/vwWs9itdKIeFrbpgJveCAulLdTSIF3lRtuDSRBYv9Xr0wlgGvLO80WBJlW8ukTmHkIDYjqpkdTVICEiMAh0WXYaLzs8k1oiLY1KJbJuPyCow5Y7mXXaVXN/VYujXagQlJzwEOxPiEkMSFrNUeXpQfq05Vqq87ZpBFW2gY0/QiaO9/V5HTQLz33PdoB3IsQ467X4EtGuqcvLeHSPZ5fi3QQvstiIxyfO7gndCgO8s=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: SimonDanisch/NASMBuilder
+        tags: true
